@@ -57,7 +57,8 @@
     /** @since 2.11.0 full screen button*/
     let $editor = $('#cf7sg-editor') ;
     $editor.css('background-color',$('body').css('background-color'));
-    $('#full-screen-cf7').on('click', function(){
+    $('#full-screen-cf7').on('click', function(e){
+      e.preventDefault();
       $editor.toggleClass('full-screen');
       $(this).toggleClass('full-screen');
       // if($editor.is('.full-screen')) $editor.width($('#wpbody').width());
@@ -363,7 +364,25 @@
         }
       }
     }); //end $grid.on('change');
-
+    //grid async click event delegation for API calls.
+    $grid.on('click', 'a.helper', async (e)=>{
+      e.preventDefault();
+      let text = $(e.target).data('cf72post');
+      //get post slug
+      let key = $('#post_name').val();
+      text = text.replace(/\{\$form_key\}/gi, key);
+      text = text.replace(/\{\$form_key_slug\}/gi, key.replace(/\-/g,'_'));
+      text = text.replace(/\{\$field_name\}/gi, field);
+      text = text.replace(/\{\$field_name_slug\}/gi, field.replace(/\-/g,'_'));
+      text = text.replace(/\{\$field_type\}/gi, tag);
+      text = text.replace(/\[dqt\]/gi, '"');
+      try {	
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        console.error('Failed to copy helper text: ', err);
+      }
+    
+    });
     //grid click event delegation
     $grid.on('click', function(event){
       let $target = $(event.target);
@@ -529,21 +548,6 @@
         $target.after($helper)
         $('.cf7sg-helper-list', $helper).append($hooks);
         $('a.helper', $helper).each(function(){
-          new Clipboard($(this)[0], {
-            text: function(trigger) {
-              let $target = $(trigger);
-              let text = $target.data('cf72post');
-              //get post slug
-              let key = $('#post_name').val();
-              text = text.replace(/\{\$form_key\}/gi, key);
-              text = text.replace(/\{\$form_key_slug\}/gi, key.replace(/\-/g,'_'));
-              text = text.replace(/\{\$field_name\}/gi, field);
-              text = text.replace(/\{\$field_name_slug\}/gi, field.replace(/\-/g,'_'));
-              text = text.replace(/\{\$field_type\}/gi, tag);
-              text = text.replace(/\[dqt\]/gi, '"');
-              return text;
-            }
-          });
           $(this).append($copy.clone());
         });
         $helper.click('a.helper, .dashicons-no-alt', function(e){
@@ -559,21 +563,6 @@
         $target.after($helper);
         $('.cf7sg-helper-list', $helper).append($hooks);
         $('a.helper', $helper).each(function(){
-          new Clipboard($(this)[0], {
-            text: function(trigger) {
-              let $target = $(trigger);
-              let text = $target.data('cf72post');
-              //get post slug
-              let key = $('#post_name').val();
-              text = text.replace(/\{\$form_key\}/gi, key);
-              text = text.replace(/\{\$form_key_slug\}/gi, key.replace(/\-/g,'_'));
-              text = text.replace(/\{\$field_name\}/gi, field);
-              text = text.replace(/\{\$field_name_slug\}/gi, field.replace(/\-/g,'_'));
-              text = text.replace(/\{\$field_type\}/gi, tag);
-              text = text.replace(/\[dqt\]/gi, '"');
-              return text;
-            }
-          });
           $(this).append($copy.clone());
         });
         $helper.click('a.helper, .dashicons-no-alt', function(e){
